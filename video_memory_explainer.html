@@ -63,16 +63,18 @@ hr.d{border:none;border-top:0.5px solid var(--color-border-tertiary);grid-column
 <div class="full">
   <div class="sec">Word at B800:0000</div>
   <div class="word-box">
-    <div class="byte-cell ascii">
-      <div class="byte-label">LOW BYTE : ASCII</div>
-      <input class="hex-input" id="ascii-hex" maxlength="2" value="41"/>
-      <div class="word-sub">offset +0</div>
-    </div>
+    
     <div class="byte-cell">
       <div class="byte-label">HIGH BYTE : ATTRIBUTE</div>
       <input class="hex-input" id="attr-hex" maxlength="2" value="07"/>
       <div class="word-sub">offset +1</div>
     </div>
+    <div class="byte-cell ascii">
+      <div class="byte-label">LOW BYTE : ASCII</div>
+      <input class="hex-input" id="ascii-hex" maxlength="2" value="41"/>
+      <div class="word-sub">offset +0</div>
+    </div>
+    
   </div>
 </div>
 
