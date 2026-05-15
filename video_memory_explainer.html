@@ -1,0 +1,182 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:.75rem;font-family:var(--font-sans,sans-serif);display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.full{grid-column:1/-1}
+.sec{font-size:10px;font-weight:500;letter-spacing:.07em;color:var(--color-text-secondary);text-transform:uppercase;margin-bottom:3px}
+.word-box{display:flex;border:1.5px solid var(--color-border-primary);border-radius:6px;overflow:hidden}
+.byte-cell{flex:1;display:flex;flex-direction:column;align-items:center;padding:.4rem .25rem;background:var(--color-background-secondary)}
+.byte-cell.ascii{border-right:1px solid var(--color-border-tertiary)}
+.byte-label{font-size:9px;color:var(--color-text-secondary);margin-bottom:2px;letter-spacing:.04em}
+.hex-input{width:52px;font-family:var(--font-mono,monospace);font-size:18px;font-weight:500;text-align:center;border:1px solid var(--color-border-secondary);border-radius:4px;padding:1px 0;color:var(--color-text-primary);background:var(--color-background-primary);text-transform:uppercase}
+.hex-input:focus{outline:none;border-color:#378ADD;box-shadow:0 0 0 2px rgba(55,138,221,.15)}
+.word-sub{font-size:9px;color:var(--color-text-tertiary);margin-top:2px}
+
+.bits-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px}
+.bit-box{display:flex;flex-direction:column;align-items:center;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:3px;padding:3px 1px}
+.bit-num{font-size:8px;color:var(--color-text-tertiary)}
+.bit-val{font-size:12px;font-weight:500;font-family:var(--font-mono,monospace);color:var(--color-text-primary)}
+.bit-role{font-size:7px;color:var(--color-text-secondary);text-align:center;line-height:1.1}
+.bit-box.b-blink{border-color:#E24B4A;background:#FCEBEB}
+.bit-box.b-blink .bit-val{color:#A32D2D}
+.bit-box.b-bg{border-color:#378ADD;background:#E6F1FB}
+.bit-box.b-bg .bit-val{color:#185FA5}
+.bit-box.b-fg{border-color:#1D9E75;background:#E1F5EE}
+.bit-box.b-fg .bit-val{color:#0F6E56}
+.bit-box.b-int{border-color:#BA7517;background:#FAEEDA}
+.bit-box.b-int .bit-val{color:#854F0B}
+@media(prefers-color-scheme:dark){
+.bit-box.b-blink{border-color:#A32D2D;background:#501313}.bit-box.b-blink .bit-val{color:#F09595}
+.bit-box.b-bg{border-color:#185FA5;background:#042C53}.bit-box.b-bg .bit-val{color:#85B7EB}
+.bit-box.b-fg{border-color:#0F6E56;background:#04342C}.bit-box.b-fg .bit-val{color:#5DCAA5}
+.bit-box.b-int{border-color:#854F0B;background:#412402}.bit-box.b-int .bit-val{color:#FAC775}
+}
+
+.legend{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.35rem}
+.leg-item{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--color-text-secondary)}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.leg-blink{background:#E24B4A}.leg-bg{background:#378ADD}.leg-fg{background:#1D9E75}.leg-int{background:#BA7517}
+
+.map-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.map-card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:5px;padding:.35rem .5rem}
+.map-title{font-size:9px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em}
+.map-val{font-size:11px;font-weight:500;color:var(--color-text-primary);margin-top:1px}
+.map-sub{font-size:9px;color:var(--color-text-secondary)}
+
+.console-wrap{background:#000;border-radius:5px;border:1.5px solid #444;overflow:hidden}
+.console-bar{background:#1a1a1a;padding:3px 8px;font-size:10px;color:#666;font-family:var(--font-mono,monospace);border-bottom:1px solid #333}
+.console-screen{padding:8px 10px;min-height:52px;display:flex;align-items:center}
+.console-char{font-family:'Courier New',monospace;font-size:26px;font-weight:bold;display:inline-block;padding:1px 4px;transition:all .15s;line-height:1}
+.console-char.blink-anim{animation:blink 1s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.presets{display:flex;flex-wrap:wrap;gap:4px}
+.preset-btn{font-size:10px;padding:2px 6px;border:0.5px solid var(--color-border-secondary);border-radius:3px;background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer}
+.preset-btn:hover{background:var(--color-background-secondary)}
+
+.addr-line{font-size:10px;font-family:var(--font-mono,monospace);color:var(--color-text-secondary);background:var(--color-background-secondary);padding:3px 6px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+hr.d{border:none;border-top:0.5px solid var(--color-border-tertiary);grid-column:1/-1;margin:0}
+</style>
+
+<div class="wrap">
+
+<div class="full">
+  <div class="sec">Word at B800:0000</div>
+  <div class="word-box">
+    <div class="byte-cell ascii">
+      <div class="byte-label">LOW BYTE : ASCII</div>
+      <input class="hex-input" id="ascii-hex" maxlength="2" value="41"/>
+      <div class="word-sub">offset +0</div>
+    </div>
+    <div class="byte-cell">
+      <div class="byte-label">HIGH BYTE : ATTRIBUTE</div>
+      <input class="hex-input" id="attr-hex" maxlength="2" value="07"/>
+      <div class="word-sub">offset +1</div>
+    </div>
+  </div>
+</div>
+
+<div class="full"><div class="addr-line" id="addr-info"></div></div>
+
+<hr class="d">
+
+<div class="full">
+  <div class="legend">
+    <span class="leg-item"><span class="leg-dot leg-blink"></span>bit 7 blink</span>
+    <span class="leg-item"><span class="leg-dot leg-bg"></span>bits 6-4 bg RGB</span>
+    <span class="leg-item"><span class="leg-dot leg-int"></span>bit 3 intensity</span>
+    <span class="leg-item"><span class="leg-dot leg-fg"></span>bits 2-0 fg RGB</span>
+  </div>
+  <div class="bits-grid" id="bits-grid"></div>
+</div>
+
+<div>
+  <div class="sec">Decoded</div>
+  <div class="map-grid" id="map-grid">
+    <div class="map-card"><div class="map-title">Background</div><div class="map-val" id="bg-swatch"></div><div class="map-sub" id="bg-bits"></div></div>
+    <div class="map-card"><div class="map-title">Foreground</div><div class="map-val" id="fg-swatch"></div><div class="map-sub" id="fg-bits"></div></div>
+    <div class="map-card"><div class="map-title">Intensity</div><div class="map-val" id="int-val"></div></div>
+    <div class="map-card"><div class="map-title">Blink</div><div class="map-val" id="blink-val"></div></div>
+  </div>
+</div>
+
+<div>
+  <div class="sec">Console</div>
+  <div class="console-wrap">
+    <div class="console-bar">80x25 chars</div>
+    <div class="console-screen"><span class="console-char" id="console-char">A</span></div>
+  </div>
+</div>
+
+<hr class="d">
+
+<div class="full">
+  <div class="sec" style="margin-bottom:4px">Presets</div>
+  <div class="presets">
+    <button class="preset-btn" onclick="setVal('41','07')">A normal</button>
+    <button class="preset-btn" onclick="setVal('41','70')">A inverted</button>
+    <button class="preset-btn" onclick="setVal('42','02')">B green</button>
+    <button class="preset-btn" onclick="setVal('48','09')">H blue+bright</button>
+    <button class="preset-btn" onclick="setVal('58','8F')">X blink</button>
+    <button class="preset-btn" onclick="setVal('2A','6E')">* yellow/red</button>
+    <button class="preset-btn" onclick="setVal('20','07')">space (clear)</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const CGA=['#000000','#0000AA','#00AA00','#00AAAA','#AA0000','#AA00AA','#AA5500','#AAAAAA','#555555','#5555FF','#55FF55','#55FFFF','#FF5555','#FF55FF','#FFFF55','#FFFFFF'];
+const CGANAME=['Black','Dark Blue','Dark Green','Cyan','Red','Magenta','Brown','Lt Gray','Dk Gray','Bright Blue','Bright Green','Bright Cyan','Bright Red','Bright Magenta','Yellow','White'];
+const BITCLASS=['b-fg','b-fg','b-fg','b-int','b-bg','b-bg','b-bg','b-blink'];
+const BITROLE=['FG B','FG G','FG R','Int','BG B','BG G','BG R','Blink'];
+
+function clampHex(v){return v.replace(/[^0-9a-fA-F]/g,'').slice(0,2)}
+
+function swatch(color,name){
+  return `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${color};border:1px solid #888;vertical-align:middle;margin-right:4px"></span>${name}`;
+}
+
+function update(){
+  const ascii=parseInt(document.getElementById('ascii-hex').value||'0',16);
+  const attr=parseInt(document.getElementById('attr-hex').value||'0',16);
+  const ch=(ascii>=32&&ascii<127)?String.fromCharCode(ascii):(ascii===0?'∅':'·');
+  const blink=!!(attr&0x80);
+  const bgIdx=(attr>>4)&0x07;
+  const intensity=!!(attr&0x08);
+  const fgBase=attr&0x07;
+  const fgIdx=fgBase|(intensity?8:0);
+
+  const el=document.getElementById('console-char');
+  el.textContent=ch;
+  el.style.color=CGA[fgIdx];
+  el.style.background=CGA[bgIdx];
+  blink?el.classList.add('blink-anim'):el.classList.remove('blink-anim');
+
+  const grid=document.getElementById('bits-grid');
+  grid.innerHTML='';
+  for(let b=7;b>=0;b--){
+    const val=(attr>>b)&1;
+    const d=document.createElement('div');
+    d.className='bit-box '+BITCLASS[b];
+    d.innerHTML=`<span class="bit-num">${b}</span><span class="bit-val">${val}</span><span class="bit-role">${BITROLE[b]}</span>`;
+    grid.appendChild(d);
+  }
+
+  document.getElementById('bg-swatch').innerHTML=swatch(CGA[bgIdx],CGANAME[bgIdx]);
+  document.getElementById('bg-bits').textContent=`6-4: ${bgIdx.toString(2).padStart(3,'0')}`;
+  document.getElementById('fg-swatch').innerHTML=swatch(CGA[fgIdx],CGANAME[fgIdx]);
+  document.getElementById('fg-bits').textContent=`2-0: ${fgBase.toString(2).padStart(3,'0')}${intensity?' +I':''}`;
+  document.getElementById('int-val').textContent=intensity?'High (bright)':'Normal';
+  document.getElementById('blink-val').textContent=blink?'ON':'Off';
+
+  const atH=attr.toString(16).toUpperCase().padStart(2,'0');
+  const asH=ascii.toString(16).toUpperCase().padStart(2,'0');
+  document.getElementById('addr-info').textContent=`B8000: ${asH} ${atH}  →  mov word ptr es:[0], 0x${atH}${asH}  ('${ch}' ${CGANAME[fgIdx]} on ${CGANAME[bgIdx]}${blink?', blinking':''})`;
+}
+
+function setVal(a,t){document.getElementById('ascii-hex').value=a;document.getElementById('attr-hex').value=t;update()}
+document.getElementById('ascii-hex').addEventListener('input',function(){this.value=clampHex(this.value);update()});
+document.getElementById('attr-hex').addEventListener('input',function(){this.value=clampHex(this.value);update()});
+update();
+</script>
